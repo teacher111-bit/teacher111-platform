@@ -7,382 +7,70 @@
     <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* 样式与原代码完全一致，仅微调颜色变量，保持园艺风格 */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, sans-serif;
-            background: #f5f7fb;
-            color: #1e293b;
-            line-height: 1.5;
-        }
-
-        .view {
-            display: none;
-            animation: fadeIn 0.3s ease;
-        }
-        .view.active-view {
-            display: block;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(8px);}
-            to { opacity: 1; transform: translateY(0);}
-        }
-
-        .auth-container {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            background: linear-gradient(135deg, #2d5a3b, #1a3a2a);
-        }
-        .auth-card {
-            background: white;
-            border-radius: 32px;
-            max-width: 460px;
-            width: 100%;
-            padding: 32px;
-            box-shadow: 0 20px 35px -8px rgba(0,0,0,0.2);
-        }
-        .tabs {
-            display: flex;
-            gap: 24px;
-            border-bottom: 2px solid #e2e8f0;
-            margin-bottom: 24px;
-        }
-        .tab-btn {
-            background: none;
-            border: none;
-            font-size: 1.2rem;
-            font-weight: 600;
-            padding: 10px 0;
-            cursor: pointer;
-            color: #64748b;
-            transition: 0.2s;
-        }
-        .tab-btn.active {
-            color: #2d6a4f;
-            border-bottom: 2px solid #2d6a4f;
-            margin-bottom: -2px;
-        }
-        .auth-form {
-            display: none;
-        }
-        .auth-form.active-form {
-            display: block;
-        }
-        .input-group {
-            margin-bottom: 20px;
-        }
-        .input-group label {
-            font-size: 0.85rem;
-            font-weight: 500;
-            margin-bottom: 6px;
-            display: block;
-        }
-        .input-field {
-            width: 100%;
-            padding: 12px 16px;
-            border: 1.5px solid #e2e8f0;
-            border-radius: 20px;
-            font-size: 1rem;
-            transition: all 0.2s;
-        }
-        .input-field:focus {
-            border-color: #2d6a4f;
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(45,106,79,0.2);
-        }
-        .action-btn {
-            width: 100%;
-            background: #2d6a4f;
-            border: none;
-            padding: 12px;
-            border-radius: 40px;
-            color: white;
-            font-weight: 600;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .action-btn:hover {
-            background: #1f543e;
-        }
-        .message {
-            margin-top: 16px;
-            font-size: 0.8rem;
-            text-align: center;
-            padding: 8px;
-            border-radius: 40px;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, sans-serif; background: #f5f7fb; color: #1e293b; line-height: 1.5; }
+        .view { display: none; animation: fadeIn 0.3s ease; }
+        .view.active-view { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px);} to { opacity: 1; transform: translateY(0);} }
+        .auth-container { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; background: linear-gradient(135deg, #2d5a3b, #1a3a2a); }
+        .auth-card { background: white; border-radius: 32px; max-width: 460px; width: 100%; padding: 32px; box-shadow: 0 20px 35px -8px rgba(0,0,0,0.2); }
+        .tabs { display: flex; gap: 24px; border-bottom: 2px solid #e2e8f0; margin-bottom: 24px; }
+        .tab-btn { background: none; border: none; font-size: 1.2rem; font-weight: 600; padding: 10px 0; cursor: pointer; color: #64748b; transition: 0.2s; }
+        .tab-btn.active { color: #2d6a4f; border-bottom: 2px solid #2d6a4f; margin-bottom: -2px; }
+        .auth-form { display: none; }
+        .auth-form.active-form { display: block; }
+        .input-group { margin-bottom: 20px; }
+        .input-group label { font-size: 0.85rem; font-weight: 500; margin-bottom: 6px; display: block; }
+        .input-field { width: 100%; padding: 12px 16px; border: 1.5px solid #e2e8f0; border-radius: 20px; font-size: 1rem; transition: all 0.2s; }
+        .input-field:focus { border-color: #2d6a4f; outline: none; box-shadow: 0 0 0 3px rgba(45,106,79,0.2); }
+        .action-btn { width: 100%; background: #2d6a4f; border: none; padding: 12px; border-radius: 40px; color: white; font-weight: 600; font-size: 1rem; cursor: pointer; transition: 0.2s; }
+        .action-btn:hover { background: #1f543e; }
+        .message { margin-top: 16px; font-size: 0.8rem; text-align: center; padding: 8px; border-radius: 40px; }
         .error-message { background: #fee2e2; color: #b91c1c; }
         .success-message { background: #dcfce7; color: #15803d; }
-
-        .app-header {
-            background: white;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-            position: sticky;
-            top: 0;
-            z-index: 10;
-            padding: 12px 0;
-        }
-        .header-container {
-            max-width: 1280px;
-            margin: 0 auto;
-            padding: 0 24px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 16px;
-        }
-        .logo {
-            font-size: 1.5rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, #2d6a4f, #52b788);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            cursor: pointer;
-        }
-        .search-bar {
-            flex: 1;
-            max-width: 400px;
-            display: flex;
-            background: #f1f5f9;
-            border-radius: 40px;
-            padding: 6px 16px;
-            align-items: center;
-        }
-        .search-bar input {
-            flex: 1;
-            border: none;
-            background: transparent;
-            padding: 10px 0;
-            outline: none;
-            font-size: 0.9rem;
-        }
-        .search-bar span {
-            color: #94a3b8;
-        }
-        .nav-icons {
-            display: flex;
-            gap: 20px;
-            align-items: center;
-        }
-        .nav-icons a {
-            text-decoration: none;
-            color: #334155;
-            font-weight: 500;
-            cursor: pointer;
-        }
-        .user-area {
-            background: #f1f5f9;
-            padding: 6px 16px;
-            border-radius: 40px;
-            display: flex;
-            gap: 12px;
-            align-items: center;
-        }
-        .user-email {
-            font-size: 0.8rem;
-            color: #1e293b;
-            max-width: 180px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-        .logout-icon {
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-weight: 600;
-            color: #ef4444;
-        }
-
-        .hero-banner {
-            background: linear-gradient(120deg, #e8f5e9, #d0ebd4);
-            padding: 48px 0;
-            text-align: center;
-        }
-        .container {
-            max-width: 1280px;
-            margin: 0 auto;
-            padding: 0 24px;
-        }
-        .course-grid {
-            display: grid;
-            grid-template-columns: repeat(3, minmax(280px, 1fr));
-            gap: 28px;
-            margin: 48px 0;
-        }
-        @media (max-width: 900px) {
-            .course-grid {
-                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            }
-        }
-        .course-card {
-            background: white;
-            border-radius: 24px;
-            overflow: hidden;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
-            transition: all 0.2s;
-            cursor: pointer;
-        }
-        .course-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 25px -12px rgba(0,0,0,0.1);
-        }
-        .course-img {
-            height: 140px;
-            background: #b7e4c7;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 3rem;
-        }
-        .course-info {
-            padding: 20px;
-        }
-        .course-title {
-            font-size: 1.4rem;
-            font-weight: 700;
-        }
-        .course-desc {
-            color: #475569;
-            margin: 8px 0;
-            font-size: 0.9rem;
-        }
-        .btn-learn {
-            background: #2d6a4f;
-            color: white;
-            border: none;
-            padding: 8px 20px;
-            border-radius: 30px;
-            font-weight: 500;
-            margin-top: 12px;
-            cursor: pointer;
-        }
-
-        .back-link {
-            display: inline-block;
-            margin-bottom: 20px;
-            color: #2d6a4f;
-            text-decoration: none;
-            font-weight: 600;
-            cursor: pointer;
-            background: none;
-            border: none;
-            font-size: 0.95rem;
-        }
-        .back-link:hover {
-            text-decoration: underline;
-        }
-        .detail-header {
-            background: white;
-            border-radius: 32px;
-            padding: 24px;
-            margin: 24px 0;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-        }
-        .video-placeholder {
-            background: #2d3e2f;
-            border-radius: 24px;
-            height: 240px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #f1f9f0;
-            font-size: 1.2rem;
-            margin: 20px 0;
-            background-image: radial-gradient(circle at 10% 30%, #3a5e40, #1e3a2a);
-        }
-        .two-columns {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            margin: 30px 0;
-        }
-        .syllabus, .features {
-            background: white;
-            border-radius: 24px;
-            padding: 20px;
-        }
-        .syllabus ul, .features ul {
-            list-style: none;
-            margin-top: 12px;
-        }
-        .syllabus li, .features li {
-            padding: 8px 0;
-            border-bottom: 1px solid #eef2ff;
-        }
-        .project-btn {
-            background: #f4a261;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 40px;
-            font-weight: bold;
-            color: white;
-            font-size: 1rem;
-            cursor: pointer;
-            margin: 20px 0;
-        }
-        .project-btn:hover {
-            background: #e76f51;
-        }
-
-        .quiz-container {
-            background: white;
-            border-radius: 32px;
-            padding: 32px;
-            margin: 32px 0;
-        }
-        .question-item {
-            margin-bottom: 32px;
-            border-bottom: 1px solid #e2e8f0;
-            padding-bottom: 24px;
-        }
-        .question-text {
-            font-weight: 700;
-            font-size: 1.1rem;
-            margin-bottom: 12px;
-        }
-        .options {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin: 12px 0;
-        }
-        .option {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .submit-quiz {
-            background: #10b981;
-            margin-top: 20px;
-        }
-        footer {
-            text-align: center;
-            padding: 32px 0;
-            color: #64748b;
-            border-top: 1px solid #e2e8f0;
-            margin-top: 48px;
-        }
-        @media (max-width: 768px) {
-            .two-columns { grid-template-columns: 1fr; }
-            .header-container { flex-direction: column; align-items: stretch; }
-            .search-bar { max-width: 100%; }
-        }
+        .app-header { background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 10; padding: 12px 0; }
+        .header-container { max-width: 1280px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+        .logo { font-size: 1.5rem; font-weight: 700; background: linear-gradient(135deg, #2d6a4f, #52b788); -webkit-background-clip: text; background-clip: text; color: transparent; cursor: pointer; }
+        .search-bar { flex: 1; max-width: 400px; display: flex; background: #f1f5f9; border-radius: 40px; padding: 6px 16px; align-items: center; }
+        .search-bar input { flex: 1; border: none; background: transparent; padding: 10px 0; outline: none; font-size: 0.9rem; }
+        .search-bar span { color: #94a3b8; }
+        .nav-icons { display: flex; gap: 20px; align-items: center; }
+        .nav-icons a { text-decoration: none; color: #334155; font-weight: 500; cursor: pointer; }
+        .user-area { background: #f1f5f9; padding: 6px 16px; border-radius: 40px; display: flex; gap: 12px; align-items: center; }
+        .user-email { font-size: 0.8rem; color: #1e293b; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .logout-icon { background: none; border: none; cursor: pointer; font-weight: 600; color: #ef4444; }
+        .hero-banner { background: linear-gradient(120deg, #e8f5e9, #d0ebd4); padding: 48px 0; text-align: center; }
+        .container { max-width: 1280px; margin: 0 auto; padding: 0 24px; }
+        .course-grid { display: grid; grid-template-columns: repeat(3, minmax(280px, 1fr)); gap: 28px; margin: 48px 0; }
+        @media (max-width: 900px) { .course-grid { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); } }
+        .course-card { background: white; border-radius: 24px; overflow: hidden; box-shadow: 0 8px 20px rgba(0,0,0,0.05); transition: all 0.2s; cursor: pointer; }
+        .course-card:hover { transform: translateY(-5px); box-shadow: 0 20px 25px -12px rgba(0,0,0,0.1); }
+        .course-img { height: 140px; background: #b7e4c7; display: flex; align-items: center; justify-content: center; font-size: 3rem; }
+        .course-info { padding: 20px; }
+        .course-title { font-size: 1.4rem; font-weight: 700; }
+        .course-desc { color: #475569; margin: 8px 0; font-size: 0.9rem; }
+        .btn-learn { background: #2d6a4f; color: white; border: none; padding: 8px 20px; border-radius: 30px; font-weight: 500; margin-top: 12px; cursor: pointer; }
+        .back-link { display: inline-block; margin-bottom: 20px; color: #2d6a4f; text-decoration: none; font-weight: 600; cursor: pointer; background: none; border: none; font-size: 0.95rem; }
+        .back-link:hover { text-decoration: underline; }
+        .detail-header { background: white; border-radius: 32px; padding: 24px; margin: 24px 0; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .video-placeholder { background: #2d3e2f; border-radius: 24px; height: 240px; display: flex; align-items: center; justify-content: center; color: #f1f9f0; font-size: 1.2rem; margin: 20px 0; background-image: radial-gradient(circle at 10% 30%, #3a5e40, #1e3a2a); }
+        .two-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin: 30px 0; }
+        .syllabus, .features { background: white; border-radius: 24px; padding: 20px; }
+        .syllabus ul, .features ul { list-style: none; margin-top: 12px; }
+        .syllabus li, .features li { padding: 8px 0; border-bottom: 1px solid #eef2ff; }
+        .project-btn { background: #f4a261; border: none; padding: 12px 24px; border-radius: 40px; font-weight: bold; color: white; font-size: 1rem; cursor: pointer; margin: 20px 0; }
+        .project-btn:hover { background: #e76f51; }
+        .quiz-container { background: white; border-radius: 32px; padding: 32px; margin: 32px 0; }
+        .question-item { margin-bottom: 32px; border-bottom: 1px solid #e2e8f0; padding-bottom: 24px; }
+        .question-text { font-weight: 700; font-size: 1.1rem; margin-bottom: 12px; }
+        .options { display: flex; flex-direction: column; gap: 10px; margin: 12px 0; }
+        .option { display: flex; align-items: center; gap: 12px; }
+        .submit-quiz { background: #10b981; margin-top: 20px; }
+        footer { text-align: center; padding: 32px 0; color: #64748b; border-top: 1px solid #e2e8f0; margin-top: 48px; }
+        @media (max-width: 768px) { .two-columns { grid-template-columns: 1fr; } .header-container { flex-direction: column; align-items: stretch; } .search-bar { max-width: 100%; } }
     </style>
 </head>
 <body>
-    <!-- 登录/注册视图 -->
     <div id="authView" class="view">
         <div class="auth-container">
             <div class="auth-card">
@@ -406,8 +94,6 @@
             </div>
         </div>
     </div>
-
-    <!-- 主应用视图 -->
     <div id="appView" class="view" style="background:#f8fafc;">
         <div class="app-header">
             <div class="header-container">
@@ -424,8 +110,6 @@
                 </div>
             </div>
         </div>
-
-        <!-- 首页视图（三个课程居中） -->
         <div id="homeView" class="view">
             <div class="hero-banner">
                 <div class="container">
@@ -463,15 +147,9 @@
             </div>
             <footer><div class="container">关于我们 | 园艺技术教研组 | 咨询专线 400-668-8383</div></footer>
         </div>
-
-        <!-- 课程详情视图（动态填充内容） -->
         <div id="courseDetailView" class="view">
-            <div class="container" id="dynamicDetailContainer">
-                <!-- 动态内容由js填充 -->
-            </div>
+            <div class="container" id="dynamicDetailContainer"></div>
         </div>
-
-        <!-- 实战项目题目页面（园艺知识闯关） -->
         <div id="projectView" class="view">
             <div class="container">
                 <div class="quiz-container">
@@ -486,15 +164,10 @@
         </div>
         <footer><div class="container">© 2026 智学课堂 | 助力终身学习 · 园艺技术精品课</div></footer>
     </div>
-
     <script>
-        // ==================== Supabase 配置 ====================
-        // 🔧 请替换为您的 Supabase 项目 URL 和 anon key
-        const SUPABASE_URL = 'https://cvqhvtpbfodwbjobaytj.supabase.co';   // 替换成自己的 URL
-        const SUPABASE_ANON_KEY = 'sb_publishable_MuuB13zNHWLSyeBp9pehsg_dzKtUFwb';             // 替换成自己的 anon key
+        const SUPABASE_URL = 'https://cvqhvtpbfodwbjobaytj.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_MuuB13zNHWLSyeBp9pehsg_dzKtUFwb';  // 注意：这是示例，请务必替换成你自己的真实 publishable key
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-        // DOM 元素
         const authView = document.getElementById('authView');
         const appView = document.getElementById('appView');
         const homeView = document.getElementById('homeView');
@@ -502,337 +175,28 @@
         const projectView = document.getElementById('projectView');
         const dynamicDetailContainer = document.getElementById('dynamicDetailContainer');
         const headerUserEmail = document.getElementById('headerUserEmail');
-
-        // 全局变量：记录当前所在的课程ID，用于返回按钮
         let currentCourseId = null;
-
-        // 视图管理
-        function setActiveView(viewId) {
-            const views = [homeView, courseDetailView, projectView];
-            views.forEach(v => { if(v) v.classList.remove('active-view'); });
-            const target = document.getElementById(viewId);
-            if(target) target.classList.add('active-view');
-        }
+        function setActiveView(viewId) { const views = [homeView, courseDetailView, projectView]; views.forEach(v => { if(v) v.classList.remove('active-view'); }); const target = document.getElementById(viewId); if(target) target.classList.add('active-view'); }
         function showHome() { setActiveView('homeView'); currentCourseId = null; }
-        function showCourseDetail(courseId) {
-            currentCourseId = courseId;
-            renderCourseDetail(courseId);
-            setActiveView('courseDetailView');
-        }
-        function showProject() {
-            if (!currentCourseId) currentCourseId = 'clone';
-            renderGardeningQuestions();
-            setActiveView('projectView');
-        }
-        function showAuthPage() {
-            authView.classList.add('active-view');
-            appView.classList.remove('active-view');
-            // 清空消息和输入框
-            document.getElementById('loginMessage').innerHTML = '';
-            document.getElementById('regMessage').innerHTML = '';
-            document.getElementById('loginEmail').value = '';
-            document.getElementById('loginPassword').value = '';
-            document.getElementById('regEmail').value = '';
-            document.getElementById('regPassword').value = '';
-        }
-        function showApp(userEmail) {
-            authView.classList.remove('active-view');
-            appView.classList.add('active-view');
-            if (headerUserEmail && userEmail) headerUserEmail.textContent = userEmail;
-            showHome();
-        }
-        async function updateHeaderFromSession() {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (user && headerUserEmail) headerUserEmail.textContent = user.email;
-        }
-
-        // ========== 园艺技术课程数据 ==========
-        const coursesData = {
-            clone: {
-                title: "🌱 克隆魔法育绣球",
-                subtitle: "原理学习：绣球花扦插原理、插穗与基质适配逻辑",
-                video: "🎬 原理动画 | 为什么绣球花可以'克隆'？植物细胞全能性解析",
-                syllabus: [
-                    "✓ 扦插繁殖的原理与优势",
-                    "✓ 绣球花生长特性与最佳扦插时机",
-                    "✓ 插穗选取标准：半木质化枝条识别",
-                    "✓ 基质适配：泥炭土+珍珠岩的科学配比",
-                    "✓ 环境因子：温度、湿度对生根的影响"
-                ],
-                features: [
-                    "🔬 微观视角展示根原基形成",
-                    "📊 不同基质对比实验数据",
-                    "🌡️ 光照与温湿度模拟工具",
-                    "📖 电子版育苗手册"
-                ]
-            },
-            cutting: {
-                title: "✂️ 巧手扦插育绣球",
-                subtitle: "前期准备：绣球花插穗的修剪与处理",
-                video: "🎬 实操演示 | 修剪技法、消毒与生根剂使用",
-                syllabus: [
-                    "✓ 插穗剪切技巧：下斜口上平口",
-                    "✓ 叶片保留数量与蒸腾平衡",
-                    "✓ 杀菌消毒方法：多菌灵浸泡",
-                    "✓ 生根剂（萘乙酸）浓度与蘸取方式",
-                    "✓ 插穗分级与批次管理"
-                ],
-                features: [
-                    "✂️ 修剪前后对比图解",
-                    "🧪 生根剂浓度计算工具",
-                    "🖐️ 手部实操慢动作演示",
-                    "📋 插穗质量评价表"
-                ]
-            },
-            care: {
-                title: "🏡 绣球安家小妙招",
-                subtitle: "实操演练：绣球花扦插实操与环境管理",
-                video: "🎬 全流程跟练 | 从插穗到上盆的精细管理",
-                syllabus: [
-                    "✓ 扦插深度与间距控制",
-                    "✓ 喷雾保湿与覆盖薄膜技巧",
-                    "✓ 愈伤组织观察与生根判断",
-                    "✓ 炼苗移栽关键步骤",
-                    "✓ 肥水管理与病虫害预防"
-                ],
-                features: [
-                    "💧 自动喷雾定时策略",
-                    "🌱 生根周期记录卡片",
-                    "📱 远程环境监测参考",
-                    "🎓 园艺师经验分享"
-                ]
-            }
-        };
-
-        function renderCourseDetail(courseId) {
-            const course = coursesData[courseId];
-            if (!course) return;
-            const html = `
-                <button class="back-link" id="backHomeFromDetail">← 返回首页</button>
-                <div class="detail-header">
-                    <h2>${course.title}</h2>
-                    <p>${course.subtitle}</p>
-                </div>
-                <div class="video-placeholder">
-                    ${course.video}
-                </div>
-                <div class="two-columns">
-                    <div class="syllabus">
-                        <h3>📖 课程大纲</h3>
-                        <ul>
-                            ${course.syllabus.map(item => `<li>${item}</li>`).join('')}
-                        </ul>
-                    </div>
-                    <div class="features">
-                        <h3>⭐ 课程特色</h3>
-                        <ul>
-                            ${course.features.map(item => `<li>${item}</li>`).join('')}
-                        </ul>
-                        <button id="dynamicProjectBtn" class="project-btn">🌿 实战闯关 → 检验知识</button>
-                        <button id="dynamicStartBtn" class="action-btn" style="background:#2d6a4f; margin-top:16px;">开始学习视频</button>
-                    </div>
-                </div>
-            `;
-            dynamicDetailContainer.innerHTML = html;
-            document.getElementById('dynamicProjectBtn')?.addEventListener('click', () => showProject());
-            document.getElementById('dynamicStartBtn')?.addEventListener('click', () => alert('📺 教学视频正在精心录制中，即将上线！先通过闯关测验巩固知识吧~'));
-            document.getElementById('backHomeFromDetail')?.addEventListener('click', showHome);
-        }
-
-        // ========== 园艺专题题目 ==========
-        const gardeningQuestions = [
-            { id: 1, text: "绣球花扦插最适宜的季节是？", options: ["春季 (3-4月)", "盛夏 (7月)", "严冬 (12月)", "深秋 (11月)"], answer: 0 },
-            { id: 2, text: "以下哪种基质组合最适合绣球花扦插？", options: ["纯园土", "泥炭土+珍珠岩 (3:1)", "河沙+黏土", "腐叶土+稻壳炭"], answer: 1 },
-            { id: 3, text: "插穗剪切时，下切口应如何处理？", options: ["平切", "斜切45°", "锯齿状切", "任意切法"], answer: 1 },
-            { id: 4, text: "扦插后，为保持湿度通常采用哪种方法？", options: ["强光直射", "覆盖薄膜保湿", "大量浇水淹没", "完全不浇水"], answer: 1 },
-            { id: 5, text: "生根剂（如萘乙酸）的主要作用是？", options: ["杀菌", "促进细胞分裂和根原基形成", "提供营养", "抑制叶片生长"], answer: 1 },
-            { id: 6, text: "绣球花插穗生根适宜的温度范围是？", options: ["5-10℃", "15-25℃", "30-35℃", "40℃以上"], answer: 1 }
-        ];
+        function showCourseDetail(courseId) { currentCourseId = courseId; renderCourseDetail(courseId); setActiveView('courseDetailView'); }
+        function showProject() { if (!currentCourseId) currentCourseId = 'clone'; renderGardeningQuestions(); setActiveView('projectView'); }
+        function showAuthPage() { authView.classList.add('active-view'); appView.classList.remove('active-view'); document.getElementById('loginMessage').innerHTML = ''; document.getElementById('regMessage').innerHTML = ''; document.getElementById('loginEmail').value = ''; document.getElementById('loginPassword').value = ''; document.getElementById('regEmail').value = ''; document.getElementById('regPassword').value = ''; }
+        function showApp(userEmail) { authView.classList.remove('active-view'); appView.classList.add('active-view'); if (headerUserEmail && userEmail) headerUserEmail.textContent = userEmail; showHome(); }
+        async function updateHeaderFromSession() { const { data: { user } } = await supabase.auth.getUser(); if (user && headerUserEmail) headerUserEmail.textContent = user.email; }
+        const coursesData = { clone: { title: "🌱 克隆魔法育绣球", subtitle: "原理学习：绣球花扦插原理、插穗与基质适配逻辑", video: "🎬 原理动画 | 为什么绣球花可以'克隆'？植物细胞全能性解析", syllabus: ["✓ 扦插繁殖的原理与优势","✓ 绣球花生长特性与最佳扦插时机","✓ 插穗选取标准：半木质化枝条识别","✓ 基质适配：泥炭土+珍珠岩的科学配比","✓ 环境因子：温度、湿度对生根的影响"], features: ["🔬 微观视角展示根原基形成","📊 不同基质对比实验数据","🌡️ 光照与温湿度模拟工具","📖 电子版育苗手册"] }, cutting: { title: "✂️ 巧手扦插育绣球", subtitle: "前期准备：绣球花插穗的修剪与处理", video: "🎬 实操演示 | 修剪技法、消毒与生根剂使用", syllabus: ["✓ 插穗剪切技巧：下斜口上平口","✓ 叶片保留数量与蒸腾平衡","✓ 杀菌消毒方法：多菌灵浸泡","✓ 生根剂（萘乙酸）浓度与蘸取方式","✓ 插穗分级与批次管理"], features: ["✂️ 修剪前后对比图解","🧪 生根剂浓度计算工具","🖐️ 手部实操慢动作演示","📋 插穗质量评价表"] }, care: { title: "🏡 绣球安家小妙招", subtitle: "实操演练：绣球花扦插实操与环境管理", video: "🎬 全流程跟练 | 从插穗到上盆的精细管理", syllabus: ["✓ 扦插深度与间距控制","✓ 喷雾保湿与覆盖薄膜技巧","✓ 愈伤组织观察与生根判断","✓ 炼苗移栽关键步骤","✓ 肥水管理与病虫害预防"], features: ["💧 自动喷雾定时策略","🌱 生根周期记录卡片","📱 远程环境监测参考","🎓 园艺师经验分享"] } };
+        function renderCourseDetail(courseId) { const course = coursesData[courseId]; if (!course) return; const html = `<button class="back-link" id="backHomeFromDetail">← 返回首页</button><div class="detail-header"><h2>${course.title}</h2><p>${course.subtitle}</p></div><div class="video-placeholder">${course.video}</div><div class="two-columns"><div class="syllabus"><h3>📖 课程大纲</h3><ul>${course.syllabus.map(item => `<li>${item}</li>`).join('')}</ul></div><div class="features"><h3>⭐ 课程特色</h3><ul>${course.features.map(item => `<li>${item}</li>`).join('')}</ul><button id="dynamicProjectBtn" class="project-btn">🌿 实战闯关 → 检验知识</button><button id="dynamicStartBtn" class="action-btn" style="background:#2d6a4f; margin-top:16px;">开始学习视频</button></div></div>`; dynamicDetailContainer.innerHTML = html; document.getElementById('dynamicProjectBtn')?.addEventListener('click', () => showProject()); document.getElementById('dynamicStartBtn')?.addEventListener('click', () => alert('📺 教学视频正在精心录制中，即将上线！先通过闯关测验巩固知识吧~')); document.getElementById('backHomeFromDetail')?.addEventListener('click', showHome); }
+        const gardeningQuestions = [{ id:1, text:"绣球花扦插最适宜的季节是？", options:["春季 (3-4月)","盛夏 (7月)","严冬 (12月)","深秋 (11月)"], answer:0 },{ id:2, text:"以下哪种基质组合最适合绣球花扦插？", options:["纯园土","泥炭土+珍珠岩 (3:1)","河沙+黏土","腐叶土+稻壳炭"], answer:1 },{ id:3, text:"插穗剪切时，下切口应如何处理？", options:["平切","斜切45°","锯齿状切","任意切法"], answer:1 },{ id:4, text:"扦插后，为保持湿度通常采用哪种方法？", options:["强光直射","覆盖薄膜保湿","大量浇水淹没","完全不浇水"], answer:1 },{ id:5, text:"生根剂（如萘乙酸）的主要作用是？", options:["杀菌","促进细胞分裂和根原基形成","提供营养","抑制叶片生长"], answer:1 },{ id:6, text:"绣球花插穗生根适宜的温度范围是？", options:["5-10℃","15-25℃","30-35℃","40℃以上"], answer:1 }];
         let userGardeningAnswers = new Array(gardeningQuestions.length).fill(null);
-
-        function renderGardeningQuestions() {
-            const container = document.getElementById('questionsList');
-            if(!container) return;
-            userGardeningAnswers = new Array(gardeningQuestions.length).fill(null);
-            let html = '';
-            gardeningQuestions.forEach((q, idx) => {
-                html += `
-                    <div class="question-item" data-qidx="${idx}">
-                        <div class="question-text">${idx+1}. ${q.text}</div>
-                        <div class="options">
-                            ${q.options.map((opt, optIdx) => `
-                                <label class="option">
-                                    <input type="radio" name="gardening_q${idx}" value="${optIdx}"> 
-                                    ${String.fromCharCode(65+optIdx)}. ${opt}
-                                </label>
-                            `).join('')}
-                        </div>
-                    </div>
-                `;
-            });
-            container.innerHTML = html;
-            for(let i = 0; i < gardeningQuestions.length; i++) {
-                const radios = document.querySelectorAll(`input[name="gardening_q${i}"]`);
-                radios.forEach(radio => {
-                    radio.addEventListener('change', (e) => {
-                        userGardeningAnswers[i] = parseInt(e.target.value);
-                    });
-                });
-            }
-            const resultDiv = document.getElementById('quizResult');
-            if(resultDiv) resultDiv.innerHTML = '';
-        }
-
-        function computeGardeningScore() {
-            let correct = 0;
-            gardeningQuestions.forEach((q, idx) => {
-                if(userGardeningAnswers[idx] !== null && userGardeningAnswers[idx] === q.answer) correct++;
-            });
-            const total = gardeningQuestions.length;
-            const percentage = Math.round((correct/total)*100);
-            let message = '';
-            if (percentage === 100) message = '🏆 园艺大师！满分通过！';
-            else if (percentage >= 70) message = '🎉 优秀！你已经掌握了绣球花扦插核心技巧！';
-            else message = '🌱 再复习一下课程内容，下次会更棒~';
-            return { correct, total, percentage, message };
-        }
-
-        function submitQuiz() {
-            const resultDiv = document.getElementById('quizResult');
-            const { correct, total, percentage, message } = computeGardeningScore();
-            resultDiv.innerHTML = `<div class="success-message">✨ 得分: ${correct}/${total} (${percentage}%) ✨ ${message}</div>`;
-        }
-
-        // ========== Supabase 认证逻辑 ==========
-        async function register(email, password) {
-            const { data, error } = await supabase.auth.signUp({ email, password });
-            if (error) throw error;
-            return data;
-        }
-        async function login(email, password) {
-            const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-            if (error) throw error;
-            return data;
-        }
-        async function logout() {
-            await supabase.auth.signOut();
-            showAuthPage();
-        }
-
-        // 检查现有会话并更新 UI
-        async function checkAuth() {
-            const { data: { session } } = await supabase.auth.getSession();
-            if (session && session.user) {
-                showApp(session.user.email);
-            } else {
-                showAuthPage();
-            }
-        }
-
-        // 监听认证状态变化 (保证页面刷新后/多标签同步)
-        supabase.auth.onAuthStateChange((event, session) => {
-            if (event === 'SIGNED_IN' && session) {
-                showApp(session.user.email);
-            } else if (event === 'SIGNED_OUT') {
-                showAuthPage();
-            } else {
-                checkAuth(); // 兜底
-            }
-        });
-
-        // ========== 页面事件绑定 ==========
-        function bindEvents() {
-            // 登录按钮
-            document.getElementById('doLogin').addEventListener('click', async () => {
-                const email = document.getElementById('loginEmail').value.trim();
-                const pwd = document.getElementById('loginPassword').value.trim();
-                const msgDiv = document.getElementById('loginMessage');
-                if (!email || !pwd) {
-                    msgDiv.innerHTML = '<div class="error-message">请填写邮箱和密码</div>';
-                    return;
-                }
-                try {
-                    await login(email, pwd);
-                } catch(e) {
-                    msgDiv.innerHTML = `<div class="error-message">${e.message}</div>`;
-                }
-            });
-            // 注册按钮
-            document.getElementById('doRegister').addEventListener('click', async () => {
-                const email = document.getElementById('regEmail').value.trim();
-                const pwd = document.getElementById('regPassword').value.trim();
-                const msgDiv = document.getElementById('regMessage');
-                if (pwd.length < 6) {
-                    msgDiv.innerHTML = '<div class="error-message">密码至少6位</div>';
-                    return;
-                }
-                if (!email) {
-                    msgDiv.innerHTML = '<div class="error-message">请输入邮箱</div>';
-                    return;
-                }
-                try {
-                    await register(email, pwd);
-                    msgDiv.innerHTML = '<div class="success-message">注册成功！请登录</div>';
-                    // 自动切换到登录选项卡并填充邮箱
-                    document.querySelector('[data-tab="login"]').click();
-                    document.getElementById('loginEmail').value = email;
-                } catch(e) {
-                    msgDiv.innerHTML = `<div class="error-message">${e.message}</div>`;
-                }
-            });
-            // Tab 切换
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const tab = btn.getAttribute('data-tab');
-                    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
-                    document.getElementById('loginForm').classList.toggle('active-form', tab === 'login');
-                    document.getElementById('registerForm').classList.toggle('active-form', tab === 'register');
-                });
-            });
-            // 头部退出按钮
-            document.getElementById('headerLogout').addEventListener('click', logout);
-            // 首页导航
-            document.getElementById('navHome').addEventListener('click', (e) => { e.preventDefault(); showHome(); });
-            document.getElementById('logoHome').addEventListener('click', () => { showHome(); });
-            document.getElementById('navCourses').addEventListener('click', (e) => { e.preventDefault(); alert('🌿 当前开放三门绣球花扦插专题课程，点击卡片即可学习'); });
-            document.getElementById('navProfile').addEventListener('click', async (e) => { 
-                e.preventDefault(); 
-                const { data: { user } } = await supabase.auth.getUser();
-                alert(`📚 ${user?.email || '学员'}，您的学习数据已安全存储在云端。继续加油！`);
-            });
-            // 课程卡片点击跳转
-            const cards = document.querySelectorAll('.course-card');
-            cards.forEach(card => {
-                const courseType = card.getAttribute('data-course');
-                card.addEventListener('click', (e) => {
-                    if(e.target.classList.contains('btn-learn')) e.stopPropagation();
-                    if(courseType === 'clone') showCourseDetail('clone');
-                    else if(courseType === 'cutting') showCourseDetail('cutting');
-                    else if(courseType === 'care') showCourseDetail('care');
-                });
-                const btn = card.querySelector('.btn-learn');
-                if(btn) btn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    if(courseType === 'clone') showCourseDetail('clone');
-                    else if(courseType === 'cutting') showCourseDetail('cutting');
-                    else if(courseType === 'care') showCourseDetail('care');
-                });
-            });
-            // 题目页返回按钮
-            document.getElementById('backToCourseFromQuiz')?.addEventListener('click', () => {
-                if(currentCourseId) showCourseDetail(currentCourseId);
-                else showHome();
-            });
-            // 提交题目
-            document.getElementById('submitQuizAnswers')?.addEventListener('click', submitQuiz);
-        }
-
-        // 启动应用
-        function init() {
-            bindEvents();
-            checkAuth();
-        }
+        function renderGardeningQuestions() { const container = document.getElementById('questionsList'); if(!container) return; userGardeningAnswers = new Array(gardeningQuestions.length).fill(null); let html = ''; gardeningQuestions.forEach((q, idx) => { html += `<div class="question-item" data-qidx="${idx}"><div class="question-text">${idx+1}. ${q.text}</div><div class="options">${q.options.map((opt, optIdx) => `<label class="option"><input type="radio" name="gardening_q${idx}" value="${optIdx}"> ${String.fromCharCode(65+optIdx)}. ${opt}</label>`).join('')}</div></div>`; }); container.innerHTML = html; for(let i=0; i<gardeningQuestions.length; i++) { const radios = document.querySelectorAll(`input[name="gardening_q${i}"]`); radios.forEach(radio => { radio.addEventListener('change', (e) => { userGardeningAnswers[i] = parseInt(e.target.value); }); }); } const resultDiv = document.getElementById('quizResult'); if(resultDiv) resultDiv.innerHTML = ''; }
+        function computeGardeningScore() { let correct = 0; gardeningQuestions.forEach((q, idx) => { if(userGardeningAnswers[idx] !== null && userGardeningAnswers[idx] === q.answer) correct++; }); const total = gardeningQuestions.length; const percentage = Math.round((correct/total)*100); let message = ''; if (percentage === 100) message = '🏆 园艺大师！满分通过！'; else if (percentage >= 70) message = '🎉 优秀！你已经掌握了绣球花扦插核心技巧！'; else message = '🌱 再复习一下课程内容，下次会更棒~'; return { correct, total, percentage, message }; }
+        function submitQuiz() { const resultDiv = document.getElementById('quizResult'); const { correct, total, percentage, message } = computeGardeningScore(); resultDiv.innerHTML = `<div class="success-message">✨ 得分: ${correct}/${total} (${percentage}%) ✨ ${message}</div>`; }
+        async function register(email, password) { const { data, error } = await supabase.auth.signUp({ email, password }); if (error) throw error; return data; }
+        async function login(email, password) { const { data, error } = await supabase.auth.signInWithPassword({ email, password }); if (error) throw error; return data; }
+        async function logout() { await supabase.auth.signOut(); showAuthPage(); }
+        async function checkAuth() { const { data: { session } } = await supabase.auth.getSession(); if (session && session.user) { showApp(session.user.email); } else { showAuthPage(); } }
+        supabase.auth.onAuthStateChange((event, session) => { if (event === 'SIGNED_IN' && session) { showApp(session.user.email); } else if (event === 'SIGNED_OUT') { showAuthPage(); } else { checkAuth(); } });
+        function bindEvents() { document.getElementById('doLogin').addEventListener('click', async () => { const email = document.getElementById('loginEmail').value.trim(); const pwd = document.getElementById('loginPassword').value.trim(); const msgDiv = document.getElementById('loginMessage'); if (!email || !pwd) { msgDiv.innerHTML = '<div class="error-message">请填写邮箱和密码</div>'; return; } try { await login(email, pwd); } catch(e) { msgDiv.innerHTML = `<div class="error-message">${e.message}</div>`; } }); document.getElementById('doRegister').addEventListener('click', async () => { const email = document.getElementById('regEmail').value.trim(); const pwd = document.getElementById('regPassword').value.trim(); const msgDiv = document.getElementById('regMessage'); if (pwd.length < 6) { msgDiv.innerHTML = '<div class="error-message">密码至少6位</div>'; return; } if (!email) { msgDiv.innerHTML = '<div class="error-message">请输入邮箱</div>'; return; } try { await register(email, pwd); msgDiv.innerHTML = '<div class="success-message">注册成功！请登录</div>'; document.querySelector('[data-tab="login"]').click(); document.getElementById('loginEmail').value = email; } catch(e) { msgDiv.innerHTML = `<div class="error-message">${e.message}</div>`; } }); document.querySelectorAll('.tab-btn').forEach(btn => { btn.addEventListener('click', () => { const tab = btn.getAttribute('data-tab'); document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); document.getElementById('loginForm').classList.toggle('active-form', tab === 'login'); document.getElementById('registerForm').classList.toggle('active-form', tab === 'register'); }); }); document.getElementById('headerLogout').addEventListener('click', logout); document.getElementById('navHome').addEventListener('click', (e) => { e.preventDefault(); showHome(); }); document.getElementById('logoHome').addEventListener('click', () => { showHome(); }); document.getElementById('navCourses').addEventListener('click', (e) => { e.preventDefault(); alert('🌿 当前开放三门绣球花扦插专题课程，点击卡片即可学习'); }); document.getElementById('navProfile').addEventListener('click', async (e) => { e.preventDefault(); const { data: { user } } = await supabase.auth.getUser(); alert(`📚 ${user?.email || '学员'}，您的学习数据已安全存储在云端。继续加油！`); }); const cards = document.querySelectorAll('.course-card'); cards.forEach(card => { const courseType = card.getAttribute('data-course'); card.addEventListener('click', (e) => { if(e.target.classList.contains('btn-learn')) e.stopPropagation(); if(courseType === 'clone') showCourseDetail('clone'); else if(courseType === 'cutting') showCourseDetail('cutting'); else if(courseType === 'care') showCourseDetail('care'); }); const btn = card.querySelector('.btn-learn'); if(btn) btn.addEventListener('click', (e) => { e.stopPropagation(); if(courseType === 'clone') showCourseDetail('clone'); else if(courseType === 'cutting') showCourseDetail('cutting'); else if(courseType === 'care') showCourseDetail('care'); }); }); document.getElementById('backToCourseFromQuiz')?.addEventListener('click', () => { if(currentCourseId) showCourseDetail(currentCourseId); else showHome(); }); document.getElementById('submitQuizAnswers')?.addEventListener('click', submitQuiz); }
+        function init() { bindEvents(); checkAuth(); }
         init();
     </script>
 </body>
